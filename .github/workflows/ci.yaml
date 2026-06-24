@@ -20,6 +20,8 @@ env:
 jobs:
   test:
     runs-on: self-hosted
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -81,6 +83,8 @@ jobs:
     needs: build-and-push
     runs-on: self-hosted
     if: success()
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
