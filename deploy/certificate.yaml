@@ -1,0 +1,25 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: netpulse-d3vo-ru
+  namespace: netpulse
+spec:
+  secretName: netpulse-d3vo-ru-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - netpulse.d3vo.ru
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: netpulse-digital
+  namespace: netpulse
+spec:
+  secretName: netpulse-digital-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - netpulse.digital
