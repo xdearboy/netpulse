@@ -3,7 +3,7 @@
 [Русская версия](README.ru.md)
 
 [![CI](https://github.com/xdearboy/netpulse/actions/workflows/ci.yaml/badge.svg)](https://github.com/xdearboy/netpulse/actions/workflows/ci.yaml)
-[![Go](https://img.shields.io/badge/go-1.22-00ADD8?style=flat&logo=go&logoColor=white)](https://go.dev)
+[![Go](https://img.shields.io/badge/go-1.25-00ADD8?style=flat&logo=go&logoColor=white)](https://go.dev)
 [![License: MIT](https://img.shields.io/badge/license-MIT-44cc11?style=flat)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-ready-2496ED?style=flat&logo=docker&logoColor=white)](Dockerfile)
 [![K3s](https://img.shields.io/badge/k3s-deploy-FFC107?style=flat&logo=kubernetes&logoColor=black)](deploy/)
@@ -43,7 +43,7 @@ Client  ◀──  JSON response ───┘
 
 ## Tech stack
 
-- **Go 1.22** — backend language
+- **Go 1.25** — backend language
 - **Huma v2** — OpenAPI-first framework, spec generated from Go types
 - **chi** — router
 - **BigCache** — in-memory cache with zero GC pauses

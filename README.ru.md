@@ -1,7 +1,7 @@
 # Netpulse
 
 [![CI](https://github.com/xdearboy/netpulse/actions/workflows/ci.yaml/badge.svg)](https://github.com/xdearboy/netpulse/actions/workflows/ci.yaml)
-[![Go](https://img.shields.io/badge/go-1.22-00ADD8?style=flat&logo=go&logoColor=white)](https://go.dev)
+[![Go](https://img.shields.io/badge/go-1.25-00ADD8?style=flat&logo=go&logoColor=white)](https://go.dev)
 [![License: MIT](https://img.shields.io/badge/license-MIT-44cc11?style=flat)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-ready-2496ED?style=flat&logo=docker&logoColor=white)](Dockerfile)
 [![K3s](https://img.shields.io/badge/k3s-deploy-FFC107?style=flat&logo=kubernetes&logoColor=black)](deploy/)
@@ -41,7 +41,7 @@ Client  ◀──  JSON response ───┘
 
 ## Стек технологий
 
-- **Go 1.22** — язык бекенда
+- **Go 1.25** — язык бекенда
 - **Huma v2** — OpenAPI-first фреймворк, спека генерируется из Go-типов
 - **chi** — роутер
 - **BigCache** — in-memory кэш без GC пауз
