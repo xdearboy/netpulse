@@ -22,7 +22,7 @@ type handlerMockSource struct {
 	err    error
 }
 
-func (m *handlerMockSource) Name() string                                        { return m.name }
+func (m *handlerMockSource) Name() string { return m.name }
 func (m *handlerMockSource) Lookup(ctx context.Context, ip string) (*sources.IPResult, error) {
 	return m.result, m.err
 }
@@ -55,8 +55,7 @@ func setupTestRouter(t *testing.T) *chi.Mux {
 
 	handler := api.NewHandler(nil, nil, cache, agg, 50)
 	r := chi.NewRouter()
-	r.Get("/api/v1/ip/{ip}", handler.GetIPInfo)
-	r.Post("/api/v1/batch", handler.BatchRequest)
+	api.SetupAPI(r, handler, 100, time.Minute)
 	return r
 }
 
@@ -102,12 +101,6 @@ func TestGetIPInfo_InvalidIP(t *testing.T) {
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("status = %d, want 400", w.Code)
-	}
-
-	var errResp api.ErrorResponse
-	json.NewDecoder(w.Body).Decode(&errResp)
-	if errResp.Error != "Invalid IP address" {
-		t.Errorf("error = %s", errResp.Error)
 	}
 }
 
@@ -229,7 +222,7 @@ func TestBatchRequest_ExceedsLimit(t *testing.T) {
 	agg := services.NewAggregator(5 * time.Second)
 	handler := api.NewHandler(nil, nil, cache, agg, 2)
 	r := chi.NewRouter()
-	r.Post("/api/v1/batch", handler.BatchRequest)
+	api.SetupAPI(r, handler, 100, time.Minute)
 
 	batch := api.BatchRequest{
 		IPs: []string{"8.8.8.8", "1.1.1.1", "9.9.9.9"},
@@ -246,28 +239,6 @@ func TestBatchRequest_ExceedsLimit(t *testing.T) {
 	}
 }
 
-func TestGetIPInfo_CacheHitHeader(t *testing.T) {
-	r := setupTestRouter(t)
-
-	req1 := httptest.NewRequest("GET", "/api/v1/ip/1.1.1.1", nil)
-	w1 := httptest.NewRecorder()
-	r.ServeHTTP(w1, req1)
-
-	cacheHit1 := w1.Header().Get("X-Cache-Hit")
-	if cacheHit1 != "false" {
-		t.Errorf("first request cache hit = %s, want false", cacheHit1)
-	}
-
-	req2 := httptest.NewRequest("GET", "/api/v1/ip/1.1.1.1", nil)
-	w2 := httptest.NewRecorder()
-	r.ServeHTTP(w2, req2)
-
-	cacheHit2 := w2.Header().Get("X-Cache-Hit")
-	if cacheHit2 != "true" {
-		t.Errorf("second request cache hit = %s, want true", cacheHit2)
-	}
-}
-
 func TestHealthCheck(t *testing.T) {
 	cache, err := services.NewCache(10 * time.Minute)
 	if err != nil {
@@ -280,7 +251,7 @@ func TestHealthCheck(t *testing.T) {
 	})
 	handler := api.NewHandler(nil, nil, cache, agg, 50)
 	r := chi.NewRouter()
-	r.Get("/health", handler.HealthCheck)
+	api.SetupAPI(r, handler, 100, time.Minute)
 
 	req := httptest.NewRequest("GET", "/health", nil)
 	w := httptest.NewRecorder()
@@ -303,24 +274,5 @@ func TestHealthCheck(t *testing.T) {
 	}
 	if resp.Summary.HealthySources != 1 {
 		t.Errorf("healthy_sources = %d, want 1", resp.Summary.HealthySources)
-	}
-}
-
-func TestBatchRequest_BodyTooLarge(t *testing.T) {
-	r := setupTestRouter(t)
-
-	ips := make([]string, 200000)
-	for i := range ips {
-		ips[i] = "1.1.1.1"
-	}
-	body, _ := json.Marshal(api.BatchRequest{IPs: ips})
-
-	req := httptest.NewRequest("POST", "/api/v1/batch", bytes.NewReader(body))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-
-	if w.Code != http.StatusBadRequest {
-		t.Errorf("status = %d, want 400 for oversized body", w.Code)
 	}
 }

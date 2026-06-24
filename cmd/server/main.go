@@ -31,8 +31,8 @@ func main() {
 	agg.AddSource(sources.NewIPAPIClient())
 	agg.AddSource(sources.NewIPWhoisClient())
 	agg.AddSource(sources.NewIPapiIsClient())
-	agg.AddSource(sources.NewIPInfoSourceClient(""))
-	agg.AddSource(sources.NewIpapiCoClient(""))
+	agg.AddSource(sources.NewIPInfoSourceClient(cfg.IPInfoToken))
+	agg.AddSource(sources.NewIpapiCoClient(cfg.IPapiCoAPIKey))
 	agg.AddSource(sources.NewDBIPClient())
 	if cfg.IPGeolocationAPIKey != "" {
 		agg.AddSource(sources.NewIPGeolocationClient(cfg.IPGeolocationAPIKey))
@@ -40,7 +40,7 @@ func main() {
 	log.Printf("Aggregator initialized with %d sources", agg.SourceCount())
 
 	ripeClient := services.NewRipeClient()
-	ipinfoClient := services.NewIPInfoClient("")
+	ipinfoClient := services.NewIPInfoClient(cfg.IPInfoToken)
 	handler := api.NewHandler(ripeClient, ipinfoClient, cache, agg, cfg.BatchMaxSize)
 
 	r := chi.NewRouter()

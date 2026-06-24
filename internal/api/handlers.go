@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"strconv"
 	"time"
@@ -15,7 +14,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-const maxBatchBodySize = 1 << 20 // 1MB, prevents OOM from malicious payloads
+const maxBatchBodySize = 1 << 20
 
 type Handler struct {
 	ripeClient   *services.RipeClient
@@ -68,7 +67,8 @@ type BatchOutput struct {
 }
 
 type HealthOutput struct {
-	Body HealthResponse
+	Status int
+	Body   HealthResponse
 }
 
 type MetricsOutput struct {
@@ -99,57 +99,51 @@ func SetupAPI(r chi.Router, handler *Handler, rateLimit int, rateLimitWindow tim
 	api := humachi.New(r, config)
 
 	huma.Register(api, huma.Operation{
-		Method:      http.MethodGet,
-		Path:        "/api/v1/ip/{ip}",
-		Summary:     "Lookup IP address",
-		Description: "Aggregates geolocation data from multiple sources using consensus voting.",
-		Tags:        []string{"IP"},
-	}, handler.humaGetIPInfo)
+		Method:  http.MethodGet,
+		Path:    "/api/v1/ip/{ip}",
+		Summary: "Lookup IP address",
+		Tags:    []string{"IP"},
+	}, handler.GetIPInfo)
 
 	huma.Register(api, huma.Operation{
-		Method:      http.MethodGet,
-		Path:        "/api/v1/asn/{asn}",
-		Summary:     "Lookup ASN information",
-		Description: "Returns detailed ASN information including organization, country, prefixes, peers.",
-		Tags:        []string{"ASN"},
-	}, handler.humaGetASNInfo)
+		Method:  http.MethodGet,
+		Path:    "/api/v1/asn/{asn}",
+		Summary: "Lookup ASN information",
+		Tags:    []string{"ASN"},
+	}, handler.GetASNInfo)
 
 	huma.Register(api, huma.Operation{
-		Method:      http.MethodGet,
-		Path:        "/api/v1/subnet/{cidr}",
-		Summary:     "Lookup subnet information",
-		Description: "Returns subnet details including network, netmask, IP count, organization.",
-		Tags:        []string{"Subnet"},
-	}, handler.humaGetSubnetInfo)
+		Method:  http.MethodGet,
+		Path:    "/api/v1/subnet/{cidr}",
+		Summary: "Lookup subnet information",
+		Tags:    []string{"Subnet"},
+	}, handler.GetSubnetInfo)
 
 	huma.Register(api, huma.Operation{
-		Method:      http.MethodPost,
-		Path:        "/api/v1/batch",
-		Summary:     "Batch lookup",
-		Description: "Perform multiple IP, ASN, and subnet lookups in a single request.",
-		Tags:        []string{"Batch"},
-	}, handler.humaBatchRequest)
+		Method:  http.MethodPost,
+		Path:    "/api/v1/batch",
+		Summary: "Batch lookup",
+		Tags:    []string{"Batch"},
+	}, handler.BatchRequest)
 
 	huma.Register(api, huma.Operation{
-		Method:      http.MethodGet,
-		Path:        "/health",
-		Summary:     "Health check",
-		Description: "Returns status of each data source, uptime, and request metrics.",
-		Tags:        []string{"System"},
-	}, handler.humaHealthCheck)
+		Method:  http.MethodGet,
+		Path:    "/health",
+		Summary: "Health check",
+		Tags:    []string{"System"},
+	}, handler.HealthCheck)
 
 	huma.Register(api, huma.Operation{
-		Method:      http.MethodGet,
-		Path:        "/metrics",
-		Summary:     "Server metrics",
-		Description: "Returns request metrics, per-path stats, cache hit ratio, and runtime info.",
-		Tags:        []string{"System"},
-	}, handler.humaMetrics)
+		Method:  http.MethodGet,
+		Path:    "/metrics",
+		Summary: "Server metrics",
+		Tags:    []string{"System"},
+	}, handler.Metrics)
 
 	return api
 }
 
-func (h *Handler) humaGetIPInfo(ctx context.Context, input *GetIPInput) (*GetIPOutput, error) {
+func (h *Handler) GetIPInfo(ctx context.Context, input *GetIPInput) (*GetIPOutput, error) {
 	if !utils.IsValidIP(input.IP) {
 		return nil, huma.Error400BadRequest("Invalid IP address")
 	}
@@ -166,7 +160,7 @@ func (h *Handler) humaGetIPInfo(ctx context.Context, input *GetIPInput) (*GetIPO
 	return &GetIPOutput{Body: aggResult}, nil
 }
 
-func (h *Handler) humaGetASNInfo(ctx context.Context, input *GetASNInput) (*GetASNOutput, error) {
+func (h *Handler) GetASNInfo(ctx context.Context, input *GetASNInput) (*GetASNOutput, error) {
 	if !utils.IsValidASN(input.ASN) {
 		return nil, huma.Error400BadRequest("Invalid ASN number")
 	}
@@ -222,7 +216,7 @@ func (h *Handler) humaGetASNInfo(ctx context.Context, input *GetASNInput) (*GetA
 	return &GetASNOutput{Body: asnInfo}, nil
 }
 
-func (h *Handler) humaGetSubnetInfo(ctx context.Context, input *GetSubnetInput) (*GetSubnetOutput, error) {
+func (h *Handler) GetSubnetInfo(ctx context.Context, input *GetSubnetInput) (*GetSubnetOutput, error) {
 	if input.CIDR == "" {
 		return nil, huma.Error400BadRequest("CIDR parameter is required")
 	}
@@ -263,7 +257,7 @@ func (h *Handler) humaGetSubnetInfo(ctx context.Context, input *GetSubnetInput) 
 	return &GetSubnetOutput{Body: subnetInfo}, nil
 }
 
-func (h *Handler) humaBatchRequest(ctx context.Context, input *BatchInput) (*BatchOutput, error) {
+func (h *Handler) BatchRequest(ctx context.Context, input *BatchInput) (*BatchOutput, error) {
 	totalItems := len(input.Body.IPs) + len(input.Body.ASNs) + len(input.Body.Subnets)
 	if totalItems > h.batchMaxSize {
 		return nil, huma.Error400BadRequest("Batch size exceeds limit of " + strconv.Itoa(h.batchMaxSize))
@@ -332,7 +326,7 @@ func (h *Handler) humaBatchRequest(ctx context.Context, input *BatchInput) (*Bat
 	return &BatchOutput{Body: batchResp}, nil
 }
 
-func (h *Handler) humaHealthCheck(ctx context.Context, input *struct{}) (*HealthOutput, error) {
+func (h *Handler) HealthCheck(ctx context.Context, input *struct{}) (*HealthOutput, error) {
 	start := time.Now()
 	sources := h.aggregator.HealthCheck(ctx)
 	total := time.Since(start)
@@ -354,7 +348,13 @@ func (h *Handler) humaHealthCheck(ctx context.Context, input *struct{}) (*Health
 	activeReqs, _ := metrics["active_requests"].(int64)
 	goRoutines, _ := metrics["go_routines"].(int)
 
+	code := http.StatusOK
+	if status == "degraded" {
+		code = http.StatusPartialContent
+	}
+
 	return &HealthOutput{
+		Status: code,
 		Body: HealthResponse{
 			Status:    status,
 			Sources:   sources,
@@ -371,7 +371,7 @@ func (h *Handler) humaHealthCheck(ctx context.Context, input *struct{}) (*Health
 	}, nil
 }
 
-func (h *Handler) humaMetrics(ctx context.Context, input *struct{}) (*MetricsOutput, error) {
+func (h *Handler) Metrics(ctx context.Context, input *struct{}) (*MetricsOutput, error) {
 	m := GetMetrics()
 	return &MetricsOutput{Body: m}, nil
 }
@@ -379,116 +379,4 @@ func (h *Handler) humaMetrics(ctx context.Context, input *struct{}) (*MetricsOut
 func atoi(s string) int {
 	n, _ := strconv.Atoi(s)
 	return n
-}
-
-func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(payload)
-}
-
-func respondWithError(w http.ResponseWriter, code int, message string) {
-	respondWithJSON(w, code, ErrorResponse{Error: message})
-}
-
-func (h *Handler) GetIPInfo(w http.ResponseWriter, r *http.Request) {
-	ip := chi.URLParam(r, "ip")
-
-	if !utils.IsValidIP(ip) {
-		respondWithError(w, http.StatusBadRequest, "Invalid IP address")
-		return
-	}
-
-	cacheKey := "ip:" + ip
-	var aggResult services.AggregatedResult
-	cacheHit := false
-
-	start := time.Now()
-	if err := h.cache.Get(cacheKey, &aggResult); err == nil {
-		cacheHit = true
-	} else {
-		aggResult = *h.aggregator.Lookup(r.Context(), ip)
-		h.cache.Set(cacheKey, aggResult)
-	}
-
-	w.Header().Set("X-Cache-Hit", strconv.FormatBool(cacheHit))
-	w.Header().Set("X-Response-Time", time.Since(start).String())
-	respondWithJSON(w, http.StatusOK, aggResult)
-}
-
-func (h *Handler) GetASNInfo(w http.ResponseWriter, r *http.Request) {
-	asnStr := chi.URLParam(r, "asn")
-	asn, err := strconv.Atoi(asnStr)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid ASN number")
-		return
-	}
-	input := &GetASNInput{ASN: asn}
-	result, err := h.humaGetASNInfo(r.Context(), input)
-	if err != nil {
-		if statusErr, ok := err.(huma.StatusError); ok {
-			respondWithError(w, statusErr.GetStatus(), statusErr.Error())
-			return
-		}
-		respondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	respondWithJSON(w, http.StatusOK, result.Body)
-}
-
-func (h *Handler) GetSubnetInfo(w http.ResponseWriter, r *http.Request) {
-	cidr := chi.URLParam(r, "*")
-	input := &GetSubnetInput{CIDR: cidr}
-	result, err := h.humaGetSubnetInfo(r.Context(), input)
-	if err != nil {
-		if statusErr, ok := err.(huma.StatusError); ok {
-			respondWithError(w, statusErr.GetStatus(), statusErr.Error())
-			return
-		}
-		respondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	respondWithJSON(w, http.StatusOK, result.Body)
-}
-
-func (h *Handler) BatchRequest(w http.ResponseWriter, r *http.Request) {
-	r.Body = http.MaxBytesReader(w, r.Body, maxBatchBodySize)
-	var batchReq BatchRequest
-	if err := json.NewDecoder(r.Body).Decode(&batchReq); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request body")
-		return
-	}
-	input := &BatchInput{Body: batchReq}
-	result, err := h.humaBatchRequest(r.Context(), input)
-	if err != nil {
-		if statusErr, ok := err.(huma.StatusError); ok {
-			respondWithError(w, statusErr.GetStatus(), statusErr.Error())
-			return
-		}
-		respondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	respondWithJSON(w, http.StatusOK, result.Body)
-}
-
-func (h *Handler) HealthCheck(w http.ResponseWriter, r *http.Request) {
-	result, err := h.humaHealthCheck(r.Context(), nil)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	code := http.StatusOK
-	if result.Body.Status == "degraded" {
-		code = http.StatusPartialContent
-	}
-	respondWithJSON(w, code, result.Body)
-}
-
-func (h *Handler) Metrics(w http.ResponseWriter, r *http.Request) {
-	result, err := h.humaMetrics(r.Context(), nil)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	respondWithJSON(w, http.StatusOK, result.Body)
 }

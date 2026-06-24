@@ -214,7 +214,7 @@ func TestHealthCheck_Degraded(t *testing.T) {
 	})
 	handler := api.NewHandler(nil, nil, cache, agg, 50)
 	r := chi.NewRouter()
-	r.Get("/health", handler.HealthCheck)
+	api.SetupAPI(r, handler, 100, time.Minute)
 
 	req := httptest.NewRequest("GET", "/health", nil)
 	w := httptest.NewRecorder()
@@ -247,7 +247,7 @@ func TestMetrics(t *testing.T) {
 	agg := services.NewAggregator(5 * time.Second)
 	handler := api.NewHandler(nil, nil, cache, agg, 50)
 	r := chi.NewRouter()
-	r.Get("/metrics", handler.Metrics)
+	api.SetupAPI(r, handler, 100, time.Minute)
 
 	req := httptest.NewRequest("GET", "/metrics", nil)
 	w := httptest.NewRecorder()

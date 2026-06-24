@@ -14,6 +14,8 @@ type Config struct {
 	RateLimitWindow     time.Duration
 	BatchMaxSize        int
 	IPGeolocationAPIKey string
+	IPInfoToken         string
+	IPapiCoAPIKey       string
 }
 
 func Load() *Config {
@@ -25,6 +27,8 @@ func Load() *Config {
 		RateLimitWindow:     getDurationEnv("RATE_LIMIT_WINDOW", time.Minute),
 		BatchMaxSize:        getIntEnv("BATCH_MAX_SIZE", 50),
 		IPGeolocationAPIKey: getEnv("IPGEOLOCATION_API_KEY", ""),
+		IPInfoToken:         getEnv("IPINFO_TOKEN", ""),
+		IPapiCoAPIKey:       getEnv("IPAPI_CO_API_KEY", ""),
 	}
 }
 

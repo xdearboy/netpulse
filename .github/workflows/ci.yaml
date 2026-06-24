@@ -96,12 +96,16 @@ jobs:
           kubectl cluster-info
           kubectl get nodes
 
+      - name: Create namespace
+        run: |
+          kubectl create namespace netpulse --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Apply k8s manifests
         run: |
           echo "Applying deployment manifests..."
           for i in {1..3}; do
             echo "Attempt $i..."
-            kubectl apply -f deploy/namespace.yaml -f deploy/configmap.yaml -f deploy/secret.yaml -f deploy/certificate.yaml -f deploy/deployment.yaml -f deploy/service.yaml -f deploy/hpa.yaml -f deploy/ingress.yaml --validate=false && break
+            kubectl apply -f deploy/configmap.yaml -f deploy/secret.yaml -f deploy/certificate.yaml -f deploy/deployment.yaml -f deploy/service.yaml -f deploy/hpa.yaml -f deploy/ingress.yaml -n netpulse --validate=false && break
             if [ $i -lt 3 ]; then sleep 10; fi
           done
           sleep 10
