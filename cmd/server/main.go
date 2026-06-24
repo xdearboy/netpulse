@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -56,10 +57,17 @@ func main() {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		fileServer.ServeHTTP(w, r)
 	})
-	r.HandleFunc("/docs", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		data, _ := fs.ReadFile(staticFS, "docs.html")
-		w.Write(data)
+
+	docsHTML, _ := fs.ReadFile(staticFS, "docs.html")
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/docs" && !strings.Contains(r.Header.Get("Accept"), "application/json") {
+				w.Header().Set("Content-Type", "text/html; charset=utf-8")
+				w.Write(docsHTML)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
 	})
 
 	server := &http.Server{
