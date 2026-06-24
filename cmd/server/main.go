@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
@@ -16,8 +15,6 @@ import (
 	"netpulse/internal/config"
 	"netpulse/internal/services"
 	"netpulse/internal/services/sources"
-
-	"github.com/go-chi/chi/v5"
 )
 
 //go:embed static
@@ -47,28 +44,8 @@ func main() {
 	ipinfoClient := services.NewIPInfoClient(cfg.IPInfoToken)
 	handler := api.NewHandler(ripeClient, ipinfoClient, cache, agg, cfg.BatchMaxSize)
 
-	r := chi.NewRouter()
-	api.SetupMiddleware(r, cfg.RateLimit, cfg.RateLimitWindow)
-
 	staticFS, _ := fs.Sub(staticFiles, "static")
-	docsHTML, _ := fs.ReadFile(staticFS, "docs.html")
-	r.Use(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.URL.Path == "/docs" && !strings.Contains(r.Header.Get("Accept"), "application/json") {
-				w.Header().Set("Content-Type", "text/html; charset=utf-8")
-				w.Write(docsHTML)
-				return
-			}
-			next.ServeHTTP(w, r)
-		})
-	})
-
-	api.SetupAPI(r, handler, cfg.RateLimit, cfg.RateLimitWindow)
-
-	fileServer := http.FileServer(http.FS(staticFS))
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		fileServer.ServeHTTP(w, r)
-	})
+	r := api.NewRouter(handler, cfg.RateLimit, cfg.RateLimitWindow, staticFS)
 
 	server := &http.Server{
 		Addr:         ":" + cfg.Port,
