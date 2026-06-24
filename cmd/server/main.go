@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"embed"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -16,6 +18,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 )
+
+//go:embed static
+var staticFiles embed.FS
 
 func main() {
 	cfg := config.Load()
@@ -47,6 +52,12 @@ func main() {
 	api.SetupMiddleware(r, cfg.RateLimit, cfg.RateLimitWindow)
 
 	api.SetupAPI(r, handler, cfg.RateLimit, cfg.RateLimitWindow)
+
+	staticFS, _ := fs.Sub(staticFiles, "static")
+	fileServer := http.FileServer(http.FS(staticFS))
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		fileServer.ServeHTTP(w, r)
+	})
 
 	server := &http.Server{
 		Addr:         ":" + cfg.Port,

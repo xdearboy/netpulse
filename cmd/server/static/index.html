@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>netpulse — IP Geolocation API</title>
+  <meta name="description"
+    content="netpulse — IP Geolocation Aggregation API. Агрегирует данные из 7 источников с консенсусным голосованием." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+      background: #1a1b26;
+      color: #c0caf5;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+    }
+
+    .header {
+      margin-bottom: 40px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #7aa2f7, #bb9af7);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .logo h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #c0caf5;
+    }
+
+    .subtitle {
+      color: #565f89;
+      font-size: 14px;
+      margin-left: 60px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #24283b;
+      margin: 32px 0;
+    }
+
+    h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #7aa2f7;
+      margin-bottom: 16px;
+    }
+
+    p {
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: #a9b1d6;
+    }
+
+    a {
+      color: #bb9af7;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.15s;
+    }
+
+    a:hover {
+      border-bottom-color: #bb9af7;
+    }
+
+    .links {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 14px;
+    }
+
+    .links span {
+      color: #565f89;
+    }
+
+    .endpoints {
+      list-style: none;
+      font-size: 14px;
+    }
+
+    .endpoints li {
+      padding: 8px 0;
+      border-bottom: 1px solid #1f2335;
+      display: flex;
+      gap: 12px;
+      align-items: baseline;
+    }
+
+    .method {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      min-width: 36px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .get {
+      background: rgba(122, 162, 247, 0.15);
+      color: #7aa2f7;
+    }
+
+    .post {
+      background: rgba(187, 154, 247, 0.15);
+      color: #bb9af7;
+    }
+
+    .path {
+      color: #c0caf5;
+    }
+
+    .desc {
+      color: #565f89;
+      font-size: 12px;
+      margin-left: auto;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #9ece6a;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .footer {
+      margin-top: 48px;
+      font-size: 12px;
+      color: #414868;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">&#9889;</div>
+        <h1>netpulse</h1>
+      </div>
+      <div class="subtitle">IP Geolocation Aggregation API</div>
+    </div>
+
+    <hr />
+
+    <h2>что это</h2>
+    <p>
+      netpulse агрегирует данные геолокации IP-адресов из 7 бесплатных источников
+      с параллельным запросом и консенсусным голосованием. результат — самая точная
+      оценка на основе медианы координат и моды страны.
+    </p>
+
+    <p>
+      <span class="status"><span class="dot"></span> работает</span>
+      &nbsp;|&nbsp; <a href="/docs">swagger</a>
+      &nbsp;|&nbsp; <a href="https://github.com/xdearboy/netpulse">github</a>
+    </p>
+
+    <hr />
+
+    <h2>эндпоинты</h2>
+    <ul class="endpoints">
+      <li>
+        <span class="method get">GET</span>
+        <span class="path">/api/v1/ip/{ip}</span>
+        <span class="desc">геолокация IP</span>
+      </li>
+      <li>
+        <span class="method get">GET</span>
+        <span class="path">/api/v1/asn/{asn}</span>
+        <span class="desc">информация об ASN</span>
+      </li>
+      <li>
+        <span class="method get">GET</span>
+        <span class="path">/api/v1/subnet/{cidr}</span>
+        <span class="desc">информация о подсети</span>
+      </li>
+      <li>
+        <span class="method post">POST</span>
+        <span class="path">/api/v1/batch</span>
+        <span class="desc">пакетный запрос</span>
+      </li>
+      <li>
+        <span class="method get">GET</span>
+        <span class="path">/health</span>
+        <span class="desc">состояние источников</span>
+      </li>
+      <li>
+        <span class="method get">GET</span>
+        <span class="path">/metrics</span>
+        <span class="desc">метрики сервера</span>
+      </li>
+    </ul>
+
+    <hr />
+
+    <h2>быстрый старт</h2>
+    <p>
+      запрос:
+    </p>
+    <p style="color:#7aa2f7; font-size: 13px;">
+      curl https://netpulse.d3vo.ru/api/v1/ip/8.8.8.8
+    </p>
+    <p>
+      ответ:
+    </p>
+    <pre style="background:#24283b; padding:16px; border-radius:8px; overflow-x:auto; font-size:13px; color:#c0caf5;">{
+  "ip": "8.8.8.8",
+  "country": "US",
+  "country_name": "United States",
+  "city": "Mountain View",
+  "region": "California",
+  "latitude": 37.4056,
+  "longitude": -122.0775,
+  "isp": "Google LLC",
+  "organization": "Google LLC",
+  "asn": 15169,
+  "as_name": "AS15169 Google LLC",
+  "type": "IPv4",
+  "sources_used": ["ip-api", "ipwhois", "ipapi.is", "ipinfo"]
+}</pre>
+
+    <hr />
+
+    <h2>источники</h2>
+    <p>
+      ip-api.com, ipwhois.io, ipapi.is, ipinfo.io, ip-api.co, db-ip.com, ipgeolocation.io
+    </p>
+
+    <div class="footer">
+      netpulse &middot; go + chi + huma v2 &middot; mit license
+    </div>
+  </div>
+</body>
+
+</html>
