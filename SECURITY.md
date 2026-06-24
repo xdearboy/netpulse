@@ -11,7 +11,7 @@
 If you discover a security vulnerability, please report it responsibly:
 
 1. **Do NOT** open a public GitHub issue
-2. Email: [xdearboy@pm.me](mailto:xdearboy@pm.me)
+2. Email: [tech@as214745.ru](mailto:tech@as214745.ru)
 3. Include:
    - Description of the vulnerability
    - Steps to reproduce
