@@ -94,7 +94,7 @@ type HealthSummary struct {
 func SetupAPI(r chi.Router, handler *Handler, rateLimit int, rateLimitWindow time.Duration) huma.API {
 	config := huma.DefaultConfig("Netpulse", "1.0.0")
 	config.Info.Description = "IP Geolocation Aggregation API — aggregates data from 5 sources with consensus voting"
-	config.DocsPath = "/docs"
+	config.DocsPath = ""
 	config.OpenAPIPath = "/openapi.json"
 	config.Servers = []*huma.Server{
 		{URL: "https://netpulse.digital", Description: "Production"},

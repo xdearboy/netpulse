@@ -56,6 +56,11 @@ func main() {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		fileServer.ServeHTTP(w, r)
 	})
+	r.HandleFunc("/docs", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		data, _ := fs.ReadFile(staticFS, "docs.html")
+		w.Write(data)
+	})
 
 	server := &http.Server{
 		Addr:         ":" + cfg.Port,
