@@ -56,9 +56,6 @@ func main() {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		fileServer.ServeHTTP(w, r)
 	})
-	r.Get("/docs", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFileFS(w, r, staticFS, "docs.html")
-	})
 
 	server := &http.Server{
 		Addr:         ":" + cfg.Port,
