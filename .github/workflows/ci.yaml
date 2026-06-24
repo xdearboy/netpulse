@@ -39,19 +39,19 @@ jobs:
       - name: Build image
         run: docker build -t ${{ steps.tag.outputs.tag }} .
 
-      - name: Import to K3s
-        run: docker save ${{ steps.tag.outputs.tag }} | k3s ctr images import -
+      - name: Import to K3s containerd
+        run: |
+          docker save ${{ steps.tag.outputs.tag }} | sudo k3s ctr images import -
 
       - name: Deploy
         run: |
-          kubectl apply -k deploy/
-          kubectl set image deployment/netpulse \
+          sudo kubectl apply -k deploy/
+          sudo kubectl set image deployment/netpulse \
             netpulse=${{ steps.tag.outputs.tag }} \
             -n netpulse
-          kubectl rollout status deployment/netpulse -n netpulse --timeout=120s
+          sudo kubectl rollout status deployment/netpulse -n netpulse --timeout=120s
 
       - name: Verify
         run: |
-          kubectl get pods -n netpulse
-          sleep 5
-          kubectl get ingress -n netpulse
+          sudo kubectl get pods -n netpulse
+          sudo kubectl get ingress -n netpulse
