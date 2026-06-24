@@ -55,11 +55,9 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
             failureThreshold: 3
-          livenessProbe:
+            livenessProbe:
             httpGet:
               path: /health
               port: 8080
             initialDelaySeconds: 10
             periodSeconds: 30
-      imagePullSecrets:
-        - name: ghcr-secret
