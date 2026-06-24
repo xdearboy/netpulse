@@ -1,49 +1,43 @@
-# Contributing
+# Contributing to Netpulse
 
-Thanks for your interest in contributing to Netpulse!
+Thanks for your interest in contributing!
 
-## Getting started
+## Getting Started
 
-1. Fork the repo
-2. Clone your fork
-3. Create a branch: `git checkout -b feature/my-feature`
-4. Make your changes
-5. Run tests: `go test ./... -v`
-6. Push and open a PR
+```bash
+git clone https://github.com/xdearboy/netpulse.git
+cd netpulse
+go mod download
+go test ./... -v
+```
 
 ## Development
 
-```bash
-go run cmd/server/main.go
-```
+- **Language**: Go 1.25+
+- **Router**: chi/v5
+- **API Framework**: Huma v2 (OpenAPI-first)
+- **Tests**: `go test ./... -v -count=1`
+- **Build**: `go build ./...`
 
-Server starts on `:8080`, Swagger UI at `/docs`.
+## Pull Requests
 
-## Code style
+1. Fork the repo
+2. Create a branch (`git checkout -b feat/my-feature`)
+3. Make changes
+4. Run tests (`go test ./... -count=1`)
+5. Commit with a clear message
+6. Open a PR
 
-- Follow standard Go conventions (`gofmt`, `go vet`)
-- Keep functions short and focused
-- No unnecessary comments — code should be self-documenting
-- Tests are in `tests/` directory
+## Code Style
 
-## Adding a new IP source
+- Follow existing patterns
+- No unnecessary comments
+- Keep it simple — no premature abstractions
+- All handlers return `(output, error)` via Huma
 
-1. Create `internal/services/sources/your_source.go`
-2. Implement `IPLookupSource` interface
-3. Use `SharedHTTPClient()` for connection pooling
-4. Register in `cmd/server/main.go`
-5. Add tests in `tests/sources_test.go`
+## Adding a Source
 
-## Adding a new endpoint
-
-1. Add input/output types in `internal/api/handlers.go`
-2. Register with `huma.Register()`
-3. Add backward-compatible `http.HandlerFunc` adapter for tests
-4. Add tests in `tests/handlers_test.go`
-
-## Pull requests
-
-- Keep PRs focused on one change
-- Write a clear description
-- Add tests for new functionality
-- Make sure `go test ./...` passes
+1. Create a new file in `internal/services/sources/`
+2. Implement the `Source` interface (`Name()` + `Lookup()`)
+3. Register it in `cmd/server/main.go`
+4. Add tests in `tests/sources_test.go`

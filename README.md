@@ -169,7 +169,14 @@ make logs    # tail pod logs
 GitHub Actions pipeline in `.github/workflows/ci.yaml`:
 
 - **test** — vet + test on every push/PR
-- **build-and-deploy** — docker build, import to K3s, rollout restart
+- **build-and-push** — Docker build, push to GHCR
+- **deploy** — kubectl apply + rollout on self-hosted K3s runner
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 
 ---
 

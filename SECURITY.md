@@ -1,33 +1,31 @@
 # Security Policy
 
-## Supported versions
+## Supported Versions
 
 | Version | Supported          |
 | ------- | ------------------ |
-| latest  | ✅          |
+| latest  | :white_check_mark: |
 
-## Reporting a vulnerability
+## Reporting a Vulnerability
 
 If you discover a security vulnerability, please report it responsibly:
 
-1. **Do NOT** open a public GitHub issue
-2. Email: [tech@as214745.ru](mailto:tech@as214745.ru)
-3. Include:
-   - Description of the vulnerability
-   - Steps to reproduce
-   - Potential impact
-   - Suggested fix (if any)
+- **Email**: tech@as214745.ru
+- **GitHub**: Open a private security advisory via the "Security" tab
 
-## Response timeline
+Do NOT open a public issue for security vulnerabilities.
 
-- Acknowledgment within 48 hours
-- Fix or mitigation within 7 days for critical issues
-- Credit in release notes (unless you prefer anonymity)
+Response time: within 48 hours.
 
-## Security measures
+## Scope
 
-- Rate limiting per IP with configurable limits
-- Request body size limits (1MB for batch endpoint)
-- X-Forwarded-For sanitization
-- Input validation on all endpoints
-- No secrets in code — all config via environment variables
+- API injection via crafted IP/ASN/CIDR inputs
+- Rate limiter bypass
+- Cache poisoning
+- Information disclosure through error messages
+- Resource exhaustion (DoS via batch requests, etc.)
+
+## Out of Scope
+
+- Third-party source API keys leakage (config responsibility)
+- Infrastructure-level vulnerabilities (K3s cluster config)
