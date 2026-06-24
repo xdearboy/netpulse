@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Download deps
+        run: go mod download
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test ./... -count=1 -race
+
+  build-and-deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set image tag
+        id: tag
+        run: echo "tag=netpulse:$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Build image
+        run: docker build -t ${{ steps.tag.outputs.tag }} .
+
+      - name: Import to K3s
+        run: docker save ${{ steps.tag.outputs.tag }} | k3s ctr images import -
+
+      - name: Deploy
+        run: |
+          kubectl apply -k deploy/
+          kubectl set image deployment/netpulse \
+            netpulse=${{ steps.tag.outputs.tag }} \
+            -n netpulse
+          kubectl rollout status deployment/netpulse -n netpulse --timeout=120s
+
+      - name: Verify
+        run: |
+          kubectl get pods -n netpulse
+          sleep 5
+          kubectl get ingress -n netpulse

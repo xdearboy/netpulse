@@ -1,0 +1,29 @@
+# Binaries
+bin/
+netpulse
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test
+*.test
+*.out
+coverage.txt
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Secrets (edit deploy/secret.yaml locally)
+deploy/secret.yaml
