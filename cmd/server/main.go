@@ -35,9 +35,7 @@ func main() {
 	agg := services.NewAggregator(cfg.AggregatorTimeout)
 	agg.AddSource(sources.NewIPAPIClient())
 	agg.AddSource(sources.NewIPWhoisClient())
-	agg.AddSource(sources.NewIPapiIsClient())
 	agg.AddSource(sources.NewIPInfoSourceClient(cfg.IPInfoToken))
-	agg.AddSource(sources.NewIpapiCoClient(cfg.IPapiCoAPIKey))
 	agg.AddSource(sources.NewDBIPClient())
 	if cfg.IPGeolocationAPIKey != "" {
 		agg.AddSource(sources.NewIPGeolocationClient(cfg.IPGeolocationAPIKey))
@@ -57,6 +55,9 @@ func main() {
 	fileServer := http.FileServer(http.FS(staticFS))
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		fileServer.ServeHTTP(w, r)
+	})
+	r.Get("/docs", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFileFS(w, r, staticFS, "docs.html")
 	})
 
 	server := &http.Server{
