@@ -50,14 +50,7 @@ func main() {
 	r := chi.NewRouter()
 	api.SetupMiddleware(r, cfg.RateLimit, cfg.RateLimitWindow)
 
-	api.SetupAPI(r, handler, cfg.RateLimit, cfg.RateLimitWindow)
-
 	staticFS, _ := fs.Sub(staticFiles, "static")
-	fileServer := http.FileServer(http.FS(staticFS))
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		fileServer.ServeHTTP(w, r)
-	})
-
 	docsHTML, _ := fs.ReadFile(staticFS, "docs.html")
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -68,6 +61,13 @@ func main() {
 			}
 			next.ServeHTTP(w, r)
 		})
+	})
+
+	api.SetupAPI(r, handler, cfg.RateLimit, cfg.RateLimitWindow)
+
+	fileServer := http.FileServer(http.FS(staticFS))
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		fileServer.ServeHTTP(w, r)
 	})
 
 	server := &http.Server{

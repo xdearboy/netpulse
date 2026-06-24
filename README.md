@@ -11,7 +11,7 @@
 [![Tests](https://img.shields.io/badge/tests-40%2B-brightgreen?style=flat)](#tests)
 
 > High-performance Go REST API for IP geolocation, ASN, and subnet lookups.
-> Queries 7 free sources in parallel and merges results via consensus voting.
+> Queries 5 free sources in parallel and merges results via consensus voting.
 
 ---
 
@@ -20,11 +20,9 @@
 ```
 Client  ──▶  Netpulse  ──▶  ip-api.com
                          ──▶  ipwhois.io
-                         ──▶  ipapi.is
                          ──▶  ipinfo.io
-                         ──▶  ipapi.co
                          ──▶  db-ip.com
-                         ──▶  ipgeolocation.io
+                         ──▶  ipgeolocation.io (optional)
                               │
                          ◀────┘
                      vote + median merge
@@ -58,9 +56,7 @@ Client  ◀──  JSON response ───┘
 | ---------------- | ---------- | ------- |
 | ip-api.com       | 45 req/min | no      |
 | ipwhois.io       | unlimited  | no      |
-| ipapi.is         | free tier  | no      |
 | ipinfo.io        | 50k/month  | no      |
-| ipapi.co         | 30k/month  | no      |
 | db-ip.com        | unlimited  | no      |
 | ipgeolocation.io | 1k/day     | optional |
 
