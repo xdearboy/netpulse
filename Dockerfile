@@ -1,9 +1,9 @@
 FROM --platform=linux/amd64 node:22-alpine AS frontend
 WORKDIR /app
-COPY frontend/package.json frontend/pnpm-lock.yaml ./
-RUN corepack enable && echo "policy-check=false" > .npmrc && pnpm install --frozen-lockfile
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci --ignore-scripts
 COPY frontend/ ./
-RUN pnpm build
+RUN npx vite build
 
 FROM --platform=linux/amd64 golang:1.25-alpine AS backend
 WORKDIR /app
