@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.git/
+.mimocode/
+*.exe
+*.test
+*.out
+coverage.txt
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
