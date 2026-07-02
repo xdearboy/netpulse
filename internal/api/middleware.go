@@ -23,7 +23,6 @@ var startTime = time.Now()
 
 func SetupMiddleware(r chi.Router, rateLimit int, rateLimitWindow time.Duration) {
 	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
@@ -202,7 +201,6 @@ func StopRateLimiter() {
 	}
 }
 
-// rightmost IP = closest to server = hardest to spoof
 func extractClientIP(r *http.Request) string {
 	if fwd := r.Header.Get("X-Forwarded-For"); fwd != "" {
 		parts := strings.Split(fwd, ",")
@@ -263,7 +261,6 @@ func CORSMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// BestSpeed — latency matters more than ratio here
 var gzipPool = sync.Pool{
 	New: func() interface{} {
 		w, _ := gzip.NewWriterLevel(nil, gzip.BestSpeed)

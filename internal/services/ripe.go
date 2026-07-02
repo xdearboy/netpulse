@@ -96,7 +96,6 @@ func (r *RipeClient) GetIPInfo(ip string) (map[string]string, error) {
 }
 
 func (r *RipeClient) GetASNInfo(asn int) (map[string]string, error) {
-	// 1. as-overview: holder, announced, block
 	overviewURL := fmt.Sprintf("https://stat.ripe.net/data/as-overview/data.json?resource=AS%d", asn)
 	overviewBody, err := r.fetchStat(overviewURL)
 	if err != nil {
@@ -127,7 +126,6 @@ func (r *RipeClient) GetASNInfo(asn int) (map[string]string, error) {
 	info["origin"] = overview.Data.Resource
 	info["block-desc"] = overview.Data.Block.Desc
 
-	// 2. as-routing-consistency: real BGP peers (in_bgp=true = active)
 	routingURL := fmt.Sprintf("https://stat.ripe.net/data/as-routing-consistency/data.json?resource=AS%d", asn)
 	routingBody, err := r.fetchStat(routingURL)
 	if err == nil {
@@ -158,7 +156,6 @@ func (r *RipeClient) GetASNInfo(asn int) (map[string]string, error) {
 			}
 			info["prefixes"] = joinStrings(prefixes)
 
-			// Real BGP peers — only those with in_bgp=true
 			realImports := []string{}
 			for _, imp := range routing.Data.Imports {
 				if imp.InBGP {
@@ -177,7 +174,6 @@ func (r *RipeClient) GetASNInfo(asn int) (map[string]string, error) {
 		}
 	}
 
-	// 3. whois: as-name, org, status, imports, exports, contacts
 	whoisURL := fmt.Sprintf("https://stat.ripe.net/data/whois/data.json?resource=AS%d", asn)
 	whoisBody, err := r.fetchStat(whoisURL)
 	if err == nil {
@@ -236,7 +232,6 @@ func (r *RipeClient) GetASNInfo(asn int) (map[string]string, error) {
 		}
 	}
 
-	// 4. Resolve real BGP peer names (not WHOIS declarations)
 	realPeers := extractASNNumbers(info["real_imports"], info["real_exports"])
 	peerNames := r.resolvePeers(realPeers)
 	if len(peerNames) > 0 {
@@ -246,7 +241,6 @@ func (r *RipeClient) GetASNInfo(asn int) (map[string]string, error) {
 		}
 		info["peers"] = joinStrings(peerList)
 
-		// Enrich real imports/exports with names
 		info["real_imports"] = enrichWithNames(info["real_imports"], peerNames)
 		info["real_exports"] = enrichWithNames(info["real_exports"], peerNames)
 	}
@@ -421,6 +415,12 @@ func ExtractCountry(info map[string]string) string {
 
 func ExtractOrganization(info map[string]string) string {
 	if org, ok := info["descr"]; ok {
+		if asName, ok := info["as-name"]; ok && asName != "" && strings.HasPrefix(org, asName) {
+			org = strings.TrimSpace(strings.TrimPrefix(org, asName))
+			if org != "" {
+				return org
+			}
+		}
 		return org
 	}
 	if org, ok := info["organisation"]; ok {

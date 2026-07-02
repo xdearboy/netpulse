@@ -163,7 +163,6 @@ func (a *Aggregator) merge(ip string, results []*sources.IPResult, used, failed 
 		CachedAt:      time.Now(),
 	}
 
-	// strings: majority vote, coordinates: median
 	agg.Country = voteString(results, func(r *sources.IPResult) string { return r.Country })
 	agg.CountryName = voteString(results, func(r *sources.IPResult) string { return r.CountryName })
 	agg.City = voteString(results, func(r *sources.IPResult) string { return r.City })

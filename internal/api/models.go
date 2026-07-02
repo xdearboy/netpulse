@@ -19,10 +19,7 @@ type ASNInfo struct {
 	PeerCount     int       `json:"peer_count,omitempty"`
 	Prefixes      []string  `json:"prefixes,omitempty"`
 	Peers         []string  `json:"peers,omitempty"`
-	RealImports   []string  `json:"real_imports,omitempty"`
-	RealExports   []string  `json:"real_exports,omitempty"`
-	PolicyImports []string  `json:"policy_imports,omitempty"`
-	PolicyExports []string  `json:"policy_exports,omitempty"`
+	Upstreams     []string  `json:"upstreams,omitempty"`
 	AdminContacts []string  `json:"admin_contacts,omitempty"`
 	TechContacts  []string  `json:"tech_contacts,omitempty"`
 	BlockDesc     string    `json:"block_description,omitempty"`

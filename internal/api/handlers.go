@@ -14,8 +14,6 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-const maxBatchBodySize = 1 << 20
-
 type Handler struct {
 	ripeClient   *services.RipeClient
 	ipinfoClient *services.IPInfoClient
@@ -76,10 +74,10 @@ type MetricsOutput struct {
 }
 
 type HealthResponse struct {
-	Status    string                         `json:"status"`
+	Status    string                           `json:"status"`
 	Sources   map[string]services.SourceHealth `json:"sources"`
-	TotalTime string                         `json:"total_time"`
-	Summary   HealthSummary                  `json:"summary"`
+	TotalTime string                           `json:"total_time"`
+	Summary   HealthSummary                    `json:"summary"`
 }
 
 type HealthSummary struct {
@@ -206,10 +204,7 @@ func (h *Handler) GetASNInfo(ctx context.Context, input *GetASNInput) (*GetASNOu
 		PeerCount:     atoi(ripeInfo["peer_count"]),
 		Prefixes:      services.SplitStrings(ripeInfo["prefixes"]),
 		Peers:         services.SplitStrings(ripeInfo["peers"]),
-		RealImports:   services.SplitStrings(ripeInfo["real_imports"]),
-		RealExports:   services.SplitStrings(ripeInfo["real_exports"]),
-		PolicyImports: services.SplitStrings(ripeInfo["imports"]),
-		PolicyExports: services.SplitStrings(ripeInfo["exports"]),
+		Upstreams:     append(services.SplitStrings(ripeInfo["real_imports"]), services.SplitStrings(ripeInfo["real_exports"])...),
 		AdminContacts: services.SplitStrings(ripeInfo["admin-c"]),
 		TechContacts:  services.SplitStrings(ripeInfo["tech-c"]),
 		CachedAt:      time.Now(),

@@ -1,4 +1,4 @@
-.PHONY: build test run docker deploy
+.PHONY: build test run lint fmt docker deploy
 
 build:
 	go build -o bin/netpulse ./cmd/server
@@ -8,6 +8,13 @@ test:
 
 run:
 	go run cmd/server/main.go
+
+lint:
+	golangci-lint run ./...
+
+fmt:
+	gofmt -s -w .
+	cd frontend && npx prettier --write "src/**/*.{ts,tsx,css}"
 
 docker:
 	docker build -t netpulse .
