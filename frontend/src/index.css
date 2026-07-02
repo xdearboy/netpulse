@@ -1,0 +1,32 @@
+@import "tailwindcss";
+@import "@fontsource-variable/geist";
+
+@theme {
+    --font-sans: "Geist Variable", "Geist", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+    --color-ok: #5B9A6F;
+    --color-warn: #C4883A;
+    --color-err: #B85450;
+}
+
+html {
+    color-scheme: dark;
+}
+
+body {
+    background: #000;
+    color: #fff;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
