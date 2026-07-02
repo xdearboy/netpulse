@@ -12,6 +12,7 @@ on:
       - '.github/workflows/**'
       - 'cmd/**'
       - 'internal/**'
+      - 'frontend/**'
 
 env:
   REGISTRY: ghcr.io

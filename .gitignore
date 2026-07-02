@@ -27,3 +27,6 @@ Thumbs.db
 
 # Secrets (edit deploy/secret.yaml locally)
 deploy/secret.yaml
+
+# Agent memory
+.mimocode/
