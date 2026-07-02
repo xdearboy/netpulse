@@ -15,8 +15,8 @@ on:
       - 'frontend/**'
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  REGISTRY: docker.io
+  IMAGE_NAME: xdearboy/netpulse
 
 jobs:
   test:
@@ -44,7 +44,6 @@ jobs:
     runs-on: self-hosted
     permissions:
       contents: read
-      packages: write
 
     steps:
       - name: Checkout
@@ -53,18 +52,17 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to ghcr.io
+      - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=sha,prefix={{branch}}-
@@ -76,8 +74,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
 
   deploy:
@@ -127,7 +125,7 @@ jobs:
         run: |
           echo "Setting new image..."
           kubectl set image deployment/netpulse \
-            netpulse=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            netpulse=${{ env.IMAGE_NAME }}:${{ github.sha }} \
             -n netpulse
 
       - name: Wait for rollout
@@ -143,7 +141,7 @@ jobs:
 
       - name: Notify deployment
         if: success()
-        run: echo "✅ Deployment successful - ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+        run: echo "✅ Deployment successful - ${{ env.IMAGE_NAME }}:${{ github.sha }}"
 
       - name: Rollback on failure
         if: failure()
