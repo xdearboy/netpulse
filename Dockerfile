@@ -10,7 +10,7 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-COPY --from=frontend /dist ./cmd/server/static/dist
+COPY --from=frontend /dist ./cmd/server/static
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /netpulse ./cmd/server
 
 FROM --platform=linux/amd64 alpine:3.21
