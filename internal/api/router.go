@@ -28,7 +28,7 @@ func NewRouter(handler *Handler, rateLimit int, rateLimitWindow time.Duration, s
 	SetupAPI(r, handler, rateLimit, rateLimitWindow)
 
 	fileServer := http.FileServer(http.FS(staticFS))
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
 		fileServer.ServeHTTP(w, r)
 	})
 
