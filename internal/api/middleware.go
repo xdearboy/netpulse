@@ -3,6 +3,7 @@ package api
 import (
 	"compress/gzip"
 	"context"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -26,6 +27,7 @@ func SetupMiddleware(r chi.Router, rateLimit int, rateLimitWindow time.Duration)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(SecurityHeaders)
 	r.Use(CORSMiddleware)
 	r.Use(GzipMiddleware)
 	r.Use(RequestMetricsMiddleware)
@@ -198,6 +200,24 @@ func init() {
 func StopRateLimiter() {
 	if rateLimiterCancel != nil {
 		rateLimiterCancel()
+	}
+}
+
+func SecurityHeaders(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("X-Frame-Options", "DENY")
+		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		next.ServeHTTP(w, r)
+	})
+}
+
+func CacheControl(maxAge int) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Cache-Control", fmt.Sprintf("public, max-age=%d", maxAge))
+			next.ServeHTTP(w, r)
+		})
 	}
 }
 
