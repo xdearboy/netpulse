@@ -1,7 +1,6 @@
 package api
 
 import (
-	"bytes"
 	"compress/gzip"
 	"context"
 	"fmt"
@@ -307,28 +306,17 @@ func GzipMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		buf := &bytes.Buffer{}
+		w.Header().Set("Content-Encoding", "gzip")
+		w.Header().Set("Vary", "Accept-Encoding")
+
 		gz := gzipPool.Get().(*gzip.Writer)
-		gz.Reset(buf)
+		gz.Reset(w)
 		defer func() {
 			gz.Close()
 			gzipPool.Put(gz)
 		}()
 
-		rw := &gzipResponseWriter{ResponseWriter: w, Writer: gz}
-		next.ServeHTTP(rw, r)
-		gz.Close()
-
-		if buf.Len() < 1024 {
-			w.Header().Del("Content-Encoding")
-			w.Header().Del("Vary")
-			w.Write(buf.Bytes())
-			return
-		}
-
-		w.Header().Set("Content-Encoding", "gzip")
-		w.Header().Set("Vary", "Accept-Encoding")
-		w.Write(buf.Bytes())
+		next.ServeHTTP(&gzipResponseWriter{ResponseWriter: w, Writer: gz}, r)
 	})
 }
 
