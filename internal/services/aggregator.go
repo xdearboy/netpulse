@@ -62,6 +62,7 @@ type sourceResult struct {
 type SourceHealth struct {
 	Status  string `json:"status"`
 	Latency string `json:"latency,omitempty"`
+	Error   string `json:"error,omitempty"`
 }
 
 func (a *Aggregator) HealthCheck(ctx context.Context) map[string]SourceHealth {
@@ -81,7 +82,7 @@ func (a *Aggregator) HealthCheck(ctx context.Context) map[string]SourceHealth {
 			mu.Lock()
 			defer mu.Unlock()
 			if err != nil {
-				results[s.Name()] = SourceHealth{Status: "error", Latency: latency}
+				results[s.Name()] = SourceHealth{Status: "error", Latency: latency, Error: err.Error()}
 			} else {
 				results[s.Name()] = SourceHealth{Status: "ok", Latency: latency}
 			}

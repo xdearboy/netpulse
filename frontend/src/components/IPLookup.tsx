@@ -54,7 +54,7 @@ export const IPLookup = () => {
                     onClick={lookup}
                     disabled={loading}
                     aria-label="Lookup IP address"
-                    className="bg-white text-black h-11 px-6 text-sm font-medium hover:bg-white/80 active:scale-[0.98] transition-all shrink-0"
+                    className="bg-white text-black h-11 px-6 text-sm font-medium hover:bg-white/80 active:scale-[0.98] transition-all shrink-0 disabled:opacity-20"
                 >
                     {loading ? '…' : 'Lookup →'}
                 </button>

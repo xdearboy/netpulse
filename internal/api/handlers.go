@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"netpulse/internal/services"
@@ -336,7 +337,11 @@ func (h *Handler) HealthCheck(ctx context.Context, input *struct{}) (*HealthOutp
 		if s.Status == "ok" {
 			healthyCount++
 		} else {
-			status = "degraded"
+			if strings.Contains(s.Error, "429") || strings.Contains(s.Error, "rate limit") {
+				status = "rate_limited"
+			} else if status != "rate_limited" {
+				status = "degraded"
+			}
 		}
 	}
 
