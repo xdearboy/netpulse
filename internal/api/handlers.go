@@ -245,7 +245,15 @@ func (h *Handler) GetSubnetInfo(ctx context.Context, input *GetSubnetInput) (*Ge
 
 	ripeInfo, err := h.ripeClient.GetSubnetInfo(input.CIDR)
 	if err != nil {
-		return nil, huma.Error502BadGateway("Failed to fetch subnet info from RIPE")
+		subnetInfo = SubnetInfo{
+			CIDR:    input.CIDR,
+			Network: network,
+			Netmask: netmask,
+			IPCount: ipCount,
+			CachedAt: time.Now(),
+		}
+		h.cache.Set(cacheKey, subnetInfo)
+		return &GetSubnetOutput{Body: subnetInfo}, nil
 	}
 
 	subnetInfo = SubnetInfo{
