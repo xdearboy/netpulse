@@ -9,7 +9,7 @@ export const SubnetLookup = () => {
 
     const lookup = useCallback(async () => {
         if (!cidr.trim()) return;
-        const data = await request<SubnetInfo>(`/api/v1/subnet/${cidr}`);
+        const data = await request<SubnetInfo>(`/api/v1/subnet/${encodeURIComponent(cidr.trim())}`);
         if (data) setResult(data);
     }, [cidr, request]);
 
