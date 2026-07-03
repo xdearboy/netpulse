@@ -21,7 +21,7 @@ type Config struct {
 func Load() *Config {
 	return &Config{
 		Port:                getEnv("PORT", "8080"),
-		AggregatorTimeout:   getDurationEnv("AGGREGATOR_TIMEOUT", 10*time.Second),
+		AggregatorTimeout:   getDurationEnv("AGGREGATOR_TIMEOUT", 5*time.Second),
 		CacheTTL:            getDurationEnv("CACHE_TTL", 10*time.Minute),
 		RateLimit:           getIntEnv("RATE_LIMIT", 100),
 		RateLimitWindow:     getDurationEnv("RATE_LIMIT_WINDOW", time.Minute),

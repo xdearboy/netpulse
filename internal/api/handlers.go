@@ -137,6 +137,13 @@ func SetupAPI(r chi.Router, handler *Handler, rateLimit int, rateLimitWindow tim
 
 	huma.Register(api, huma.Operation{
 		Method:  http.MethodGet,
+		Path:    "/healthz",
+		Summary: "Liveness probe",
+		Tags:    []string{"System"},
+	}, handler.Liveness)
+
+	huma.Register(api, huma.Operation{
+		Method:  http.MethodGet,
 		Path:    "/metrics",
 		Summary: "Server metrics",
 		Tags:    []string{"System"},
@@ -371,6 +378,13 @@ func (h *Handler) HealthCheck(ctx context.Context, input *struct{}) (*HealthOutp
 				GoRoutines:     goRoutines,
 			},
 		},
+	}, nil
+}
+
+func (h *Handler) Liveness(ctx context.Context, input *struct{}) (*HealthOutput, error) {
+	return &HealthOutput{
+		Status: http.StatusOK,
+		Body:   HealthResponse{Status: "ok"},
 	}, nil
 }
 

@@ -13,8 +13,8 @@ func TestLoadDefaults(t *testing.T) {
 	if cfg.Port != "8080" {
 		t.Errorf("default port = %s, want 8080", cfg.Port)
 	}
-	if cfg.AggregatorTimeout != 10*time.Second {
-		t.Errorf("default timeout = %v, want 10s", cfg.AggregatorTimeout)
+	if cfg.AggregatorTimeout != 5*time.Second {
+		t.Errorf("default timeout = %v, want 5s", cfg.AggregatorTimeout)
 	}
 	if cfg.CacheTTL != 10*time.Minute {
 		t.Errorf("default cache TTL = %v, want 10m", cfg.CacheTTL)

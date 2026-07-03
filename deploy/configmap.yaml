@@ -5,7 +5,7 @@ metadata:
   namespace: netpulse
 data:
   PORT: "8080"
-  AGGREGATOR_TIMEOUT: "10"
+  AGGREGATOR_TIMEOUT: "5"
   CACHE_TTL: "10m"
   RATE_LIMIT: "10000"
   RATE_LIMIT_WINDOW: "1m"

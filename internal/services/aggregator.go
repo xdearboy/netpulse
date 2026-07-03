@@ -15,6 +15,7 @@ import (
 type Aggregator struct {
 	sources []sources.IPLookupSource
 	timeout time.Duration
+	sem     chan struct{}
 }
 
 type AggregatedResult struct {
@@ -42,6 +43,7 @@ type AggregatedResult struct {
 func NewAggregator(timeout time.Duration) *Aggregator {
 	return &Aggregator{
 		timeout: timeout,
+		sem:     make(chan struct{}, 100),
 	}
 }
 
@@ -100,8 +102,10 @@ func (a *Aggregator) Lookup(ctx context.Context, ip string) *AggregatedResult {
 
 	for _, src := range a.sources {
 		wg.Add(1)
+		a.sem <- struct{}{} // acquire semaphore slot
 		go func(s sources.IPLookupSource) {
 			defer wg.Done()
+			defer func() { <-a.sem }() // release semaphore slot
 			res, err := s.Lookup(ctx, ip)
 			results <- sourceResult{result: res, err: err, name: s.Name()}
 		}(src)

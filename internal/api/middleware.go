@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"compress/gzip"
 	"context"
 	"fmt"
@@ -185,13 +186,24 @@ func init() {
 			case <-ctx.Done():
 				return
 			case <-ticker.C:
+				// Collect stale keys with lock held briefly
 				rl.mu.Lock()
+				stale := make([]string, 0)
 				for ip, v := range rl.visitors {
 					if time.Since(v.lastSeen) > rl.window*2 {
-						delete(rl.visitors, ip)
+						stale = append(stale, ip)
 					}
 				}
 				rl.mu.Unlock()
+
+				// Delete stale entries
+				if len(stale) > 0 {
+					rl.mu.Lock()
+					for _, ip := range stale {
+						delete(rl.visitors, ip)
+					}
+					rl.mu.Unlock()
+				}
 			}
 		}
 	}()
@@ -295,17 +307,28 @@ func GzipMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		w.Header().Set("Content-Encoding", "gzip")
-		w.Header().Set("Vary", "Accept-Encoding")
-
+		buf := &bytes.Buffer{}
 		gz := gzipPool.Get().(*gzip.Writer)
-		gz.Reset(w)
+		gz.Reset(buf)
 		defer func() {
 			gz.Close()
 			gzipPool.Put(gz)
 		}()
 
-		next.ServeHTTP(&gzipResponseWriter{ResponseWriter: w, Writer: gz}, r)
+		rw := &gzipResponseWriter{ResponseWriter: w, Writer: gz}
+		next.ServeHTTP(rw, r)
+		gz.Close()
+
+		if buf.Len() < 1024 {
+			w.Header().Del("Content-Encoding")
+			w.Header().Del("Vary")
+			w.Write(buf.Bytes())
+			return
+		}
+
+		w.Header().Set("Content-Encoding", "gzip")
+		w.Header().Set("Vary", "Accept-Encoding")
+		w.Write(buf.Bytes())
 	})
 }
 

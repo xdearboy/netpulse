@@ -47,17 +47,20 @@ spec:
               memory: "128Mi"
             limits:
               cpu: "500m"
-              memory: "512Mi"
+              memory: "768Mi"
           readinessProbe:
             httpGet:
               path: /health
               port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 2
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
             initialDelaySeconds: 5
             periodSeconds: 10
+            timeoutSeconds: 2
             failureThreshold: 3
-            livenessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 30
