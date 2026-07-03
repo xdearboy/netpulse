@@ -29,6 +29,10 @@ func NewRouter(handler *Handler, rateLimit int, rateLimitWindow time.Duration, s
 
 	fileServer := http.FileServer(http.FS(staticFS))
 	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/api/") || r.URL.Path == "/health" || r.URL.Path == "/healthz" || r.URL.Path == "/metrics" {
+			http.NotFound(w, r)
+			return
+		}
 		fileServer.ServeHTTP(w, r)
 	})
 
