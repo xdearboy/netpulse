@@ -20,7 +20,7 @@ env:
 
 jobs:
   test:
-    runs-on: self-hosted
+    runs-on: netpulse-runners
     permissions:
       contents: read
     steps:
@@ -41,7 +41,7 @@ jobs:
 
   build-and-push:
     needs: test
-    runs-on: self-hosted
+    runs-on: netpulse-runners
     permissions:
       contents: read
 
@@ -80,7 +80,7 @@ jobs:
 
   deploy:
     needs: build-and-push
-    runs-on: self-hosted
+    runs-on: netpulse-runners
     if: success()
     permissions:
       contents: read
