@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: netpulse-config
+data:
+  PORT: "8080"
+  AGGREGATOR_TIMEOUT: "5"
+  CACHE_TTL: "10m"
+  RATE_LIMIT: "10000"
+  RATE_LIMIT_WINDOW: "1m"
+  BATCH_MAX_SIZE: "50"

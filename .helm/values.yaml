@@ -1,0 +1,6 @@
+replicaCount: 2
+
+ingress:
+  hosts:
+    - netpulse.d3vo.ru
+    - netpulse.digital
