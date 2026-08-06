@@ -1,0 +1,9 @@
+project: netpulse
+configVersion: 1
+---
+# Reuses the existing multi-stage Dockerfile as-is. werf tags the result by the
+# content of the source that produced it, so an identical commit yields an
+# identical tag and a changed one always yields a new tag — no more :latest.
+image: netpulse
+dockerfile: Dockerfile
+context: .
