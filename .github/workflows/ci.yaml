@@ -115,7 +115,7 @@ jobs:
       - name: Apply k8s manifests
         run: |
           echo "Applying deployment manifests..."
-          kubectl apply -f deploy/namespace.yaml -f deploy/configmap.yaml -f deploy/certificate.yaml -f deploy/deployment.yaml -f deploy/service.yaml -f deploy/hpa.yaml -f deploy/ingress.yaml --validate=false
+          kubectl apply -f deploy/namespace.yaml -f deploy/configmap.yaml -f deploy/deployment.yaml -f deploy/service.yaml -f deploy/hpa.yaml -f deploy/ingress.yaml --validate=false
           kubectl create secret generic netpulse-secrets \
             --namespace=netpulse \
             --from-literal=IPGEOLOCATION_API_KEY="${{ secrets.IPGEOLOCATION_API_KEY }}" \
