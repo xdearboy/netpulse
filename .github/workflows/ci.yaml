@@ -88,6 +88,7 @@ jobs:
           werf converge \
             --repo docker.io/xdearboy/netpulse \
             --release netpulse \
-            --namespace netpulse
+            --namespace netpulse \
+            --synchronization kubernetes://netpulse
         env:
           WERF_ENV: production
