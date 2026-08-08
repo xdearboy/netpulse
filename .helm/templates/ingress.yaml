@@ -4,6 +4,8 @@ metadata:
   name: netpulse
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    ingress.kubernetes.io/waf: modsecurity
+    ingress.kubernetes.io/waf-mode: detect
 spec:
   ingressClassName: haproxy
   rules:
